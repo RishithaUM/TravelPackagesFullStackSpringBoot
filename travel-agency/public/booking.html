@@ -226,7 +226,6 @@
   Book Your Royal Experience
 </h2>
 
-
     <div class="slider" id="imageSlider" aria-label="Package Image Slider">
       <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" class="active" alt="Royal Palace 1" />
       <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80" alt="Royal Palace 2" />
@@ -403,14 +402,35 @@
         travelers: parseInt(document.getElementById('travelers').value, 10),
         selectedPackage: document.getElementById('package').value,
       };
- // Get existing bookings or create empty array if none
-let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+fetch('http://localhost:8087/api/bookings', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(bookingData),
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Booking failed');
+  }
+  return response.json();
+})
+.then(data => {
+  alert(`Booking successful!\n
+Package ID: ${data.packageId}
+Name: ${data.name}
+Email: ${data.email}
+Preferred Date: ${data.bookingDate}
+Phone Number: ${data.phoneNumber}
+Travelers: ${data.travelers}
+Selected Package: ${data.selectedPackage}`);
 
-// Add the new booking
-bookings.push(bookingData);
-
-// Save updated bookings array back to localStorage
-localStorage.setItem('bookings', JSON.stringify(bookings));
+  document.getElementById('bookingForm').reset();
+})
+.catch(error => {
+  console.error('Error:', error);
+  alert('There was an error while booking. Please try again later.');
+});
 
       // Basic validation (additional can be added)
       if (!bookingData.name || !bookingData.email || !bookingData.travelers || !bookingData.selectedPackage) {
