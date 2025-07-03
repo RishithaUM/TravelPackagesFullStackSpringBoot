@@ -1,7 +1,5 @@
 package tour.tourpackages;
 
-import tour.tourpackages.User;
-import tour.tourpackages.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,15 +20,18 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("User already exists");
         }
+
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole("USER"); // Set default role
+
         return userRepository.save(user);
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-          .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }
