@@ -43,7 +43,7 @@
       margin-bottom: 20px;
       color: #7c2a2a;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -108,6 +108,14 @@
     <form id="authForm" onsubmit="handleSubmit(event)">
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
+      
+      <!-- Role selection shown in both login and register -->
+      <select id="role" required>
+        <option value="">Select role</option>
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+
       <button id="loginBtn" type="submit">Login</button>
       <button id="registerBtn" type="submit" style="display:none;">Register</button>
     </form>
@@ -136,13 +144,8 @@
       const toggleText = document.getElementById("toggleText");
       const toggleLink = document.querySelector(".toggle a");
 
-      if (isLogin) {
-        toggleText.textContent = "Don't have an account?";
-        toggleLink.textContent = "Register here";
-      } else {
-        toggleText.textContent = "Already have an account?";
-        toggleLink.textContent = "Login here";
-      }
+      toggleText.textContent = isLogin ? "Don't have an account?" : "Already have an account?";
+      toggleLink.textContent = isLogin ? "Register here" : "Login here";
 
       document.getElementById("message").textContent = "";
     }
@@ -157,9 +160,10 @@
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
 
-      if (!email || !password) {
-        alert("Please fill all fields");
+      if (!email || !password || !role) {
+        alert("Please fill all fields, including role.");
         return;
       }
 
@@ -169,19 +173,18 @@
       }
 
       if (isLogin) {
-        await loginUser(email, password);
+        await loginUser(email, password, role);
       } else {
-        await registerUser(email, password);
+        await registerUser(email, password, role);
       }
     }
 
-    async function registerUser(email, password) {
+    async function registerUser(email, password, role) {
       try {
         const response = await fetch("http://localhost:8087/api/users/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        
+          body: JSON.stringify({ email, password, role }),
         });
 
         const message = await response.text();
@@ -197,20 +200,20 @@
       }
     }
 
-    async function loginUser(email, password) {
+    async function loginUser(email, password, role) {
       try {
         const response = await fetch("http://localhost:8087/api/users/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-    
+          body: JSON.stringify({ email, password, role }),
         });
 
         const message = await response.text();
 
         if (response.ok) {
           localStorage.setItem("loggedInUser", email);
-          window.location.href = "http://localhost:3000";
+          localStorage.setItem("userRole", role);
+          window.location.href = "index.html"; // Adjust as needed
         } else {
           alert("Login failed: " + message);
         }
@@ -222,4 +225,3 @@
 
 </body>
 </html>
-
