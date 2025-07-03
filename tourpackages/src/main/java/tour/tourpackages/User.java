@@ -28,6 +28,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+     @Column(name = "role") // New column added here
+    private String role;
+
     // UserDetails interface methods:
 
     @Override
